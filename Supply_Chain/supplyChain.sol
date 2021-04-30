@@ -1,4 +1,5 @@
 pragma solidity ^0.8.0;
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
 
 contract Item {
     
@@ -24,7 +25,7 @@ contract Item {
     //fallback() external {}
 }
 
-contract Itemizer {
+contract Itemizer is Ownable {
     
     enum steps{created,paid,delivered}
    
@@ -38,7 +39,7 @@ contract Itemizer {
     uint index;
     event supplyChainStep(uint _itemIndex,uint _step,address itemAddress);
     
-    function createItem(string memory _id, uint _price) public {
+    function createItem(string memory _id, uint _price) public onlyOwner{
         Item item = new Item(this,_price,index);
         items[index]._identifier=_id;
         items[index]._item=item;
@@ -56,7 +57,7 @@ contract Itemizer {
 
     }
     
-    function triggerDelivery(uint _index) public {
+    function triggerDelivery(uint _index) public onlyOwner{
         require(items[_index]._step==steps.paid,"Wrong supply chain phase");
         items[_index]._step=steps.delivered;
         emit supplyChainStep(_index, uint(items[_index]._step),address(items[_index]._item));
