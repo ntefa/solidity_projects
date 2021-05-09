@@ -1,11 +1,6 @@
 const Token = artifacts.require("MyToken"); 
-var chai = require("chai");
+var chai = require("./setupChai.js");
 const BN = web3.utils.BN;
-const chaiBN = require('chai-bn')(BN); 
-chai.use(chaiBN);
-
-var chaiAsPromised = require("chai-as-promised"); chai.use(chaiAsPromised);
-
 const expect = chai.expect; 
 
 contract("Token Test", async accounts => {
@@ -22,7 +17,7 @@ contract("Token Test", async accounts => {
 		//old style:
 		//let balance = await instance.balanceOf.call(initialHolder); //assert.equal(balance.valueOf(), 0, "Account 1 has a balance");
 		//condensed, easier readable style: expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(totalSupply); });
-		expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(totalSupply); 
+		return expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(totalSupply); 
 	});
 
 	it("Should transfer tokens to other account", async () => { 
@@ -32,7 +27,7 @@ contract("Token Test", async accounts => {
 		expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(totalSupply); 
 		expect(instance.transfer(recipient,sentTokens)).to.eventually.be.fulfilled;
 		expect(instance.balanceOf(initialHolder)).to.be.eventually.a.bignumber.equal(totalSupply.sub(new BN(sentTokens)));
-		expect(instance.balanceOf(recipient)).to.be.eventually.a.bignumber.equal(new BN(sentTokens));
+		return expect(instance.balanceOf(recipient)).to.be.eventually.a.bignumber.equal(new BN(sentTokens));
 
 	})
 
@@ -40,7 +35,7 @@ contract("Token Test", async accounts => {
 		let instance = this.myToken;
 		let balanceofAccount = await instance.balanceOf(initialHolder);
 		expect(instance.transfer(recipient, new BN (balanceofAccount+1))).to.eventually.be.rejected;
-		expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(balanceofAccount); 
+		return expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(balanceofAccount); 
 
 	})
 });
