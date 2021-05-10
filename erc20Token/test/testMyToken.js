@@ -1,3 +1,5 @@
+//Note: truffle test first calls 2_deploy_conf, so its starting point is where deploy finishes.
+
 const Token = artifacts.require("MyToken"); 
 var chai = require("./setupChai.js");
 const BN = web3.utils.BN;
@@ -12,8 +14,8 @@ contract("Token Test", async accounts => {
 	});
 
 	it("All tokens should be in my account", async () => { 
-		let instance = this.myToken;
-		let totalSupply = await instance.totalSupply();
+		let instance = this.myToken;  //Token.deployed would have gotten the instance from the deployed contract,instead of creating new one like in this case.
+		let totalSupply = await instance.totalSupply(); 
 		//old style:
 		//let balance = await instance.balanceOf.call(initialHolder); //assert.equal(balance.valueOf(), 0, "Account 1 has a balance");
 		//condensed, easier readable style: expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(totalSupply); });
