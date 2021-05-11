@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 //
 import "./crowdsale.sol";
 
 
-contract myToken is ERC20 {
+contract myToken is ERC20Burnable {
     
     using SafeMath for uint256;
 
@@ -14,7 +14,7 @@ contract myToken is ERC20 {
         _mint(msg.sender, initialSupply);
     }
 
-    uint _minimumSupply=totalSupply().div(2);
+    uint private _minimumSupply=500000000; //
 
 	function transfer(address recipient, uint256 amount) public override returns (bool) {
         return super.transfer(recipient, partialBurn(amount));
@@ -28,7 +28,7 @@ contract myToken is ERC20 {
         uint256 burnAmount = _calculateBurnAmount(amount);
 
         if (burnAmount > 0) {
-            _burn(msg.sender, burnAmount); // note that burn function dedrements tokens from total supply by its own
+            burn(burnAmount); // note that burn function dedrements tokens from total supply by its own
         }
 
         return amount.sub(burnAmount);
@@ -42,7 +42,7 @@ contract myToken is ERC20 {
         if (totalSupply() > _minimumSupply) {
             burnAmount = amount.div(20); //burn 5 % ... note that in transfers of volume as low as 20 tokens won't be burnt any
             uint256 availableBurn = totalSupply().sub(_minimumSupply);
-        if (burnAmount > availableBurn) {
+        	if (burnAmount > availableBurn) {
                 burnAmount = availableBurn;
             }
         }

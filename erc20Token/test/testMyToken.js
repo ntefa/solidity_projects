@@ -37,8 +37,8 @@ contract("Token Test", async accounts => {
 		let instance = this.myToken;
 		let initialSupply = await instance.totalSupply(); //note that this is a BN
 		const sentTokens = 100;
-		const tokensBurnt = 100/20;//instance._calculateBurnAmount(sentTokens); 
-		const tokensAfterBurn = sentTokens - tokensBurnt;
+		let tokensBurnt = await instance._calculateBurnAmount(sentTokens); 
+		const tokensAfterBurn = sentTokens - tokensBurnt.toNumber();
 
 		expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(initialSupply); 
 		expect(instance.transfer(recipient,sentTokens)).to.eventually.be.fulfilled;
@@ -46,13 +46,26 @@ contract("Token Test", async accounts => {
 		let finalSupply = await instance.totalSupply();
 
 		//note that the hereunder assertion does not have eventually because finalSupply is a variable and not a promise, such as instance.smth
-		expect(finalSupply).to.be.a.bignumber.equal(initialSupply.sub(new BN(tokensBurnt)));
+		expect(finalSupply).to.be.a.bignumber.equal(initialSupply.sub(tokensBurnt));
 		expect(instance.balanceOf(initialHolder)).to.be.eventually.a.bignumber.equal(initialSupply.sub(new BN(sentTokens)));
 		return expect(instance.balanceOf(recipient)).to.be.eventually.a.bignumber.equal(new BN(tokensAfterBurn));
 		//check balance on truffle console:  let instance =myToken.deployed() ; (await instance.totalSupply()).toNumber()
 	})
 
-
+	it("Should stop burning coins after reaching half the initial supply", async () => { 
+		let instance = this.myToken;
+		const sentTokens = 100;
+		let initialSupply = await instance.totalSupply(); //note that this is a BN
+		tokensBurnt = initialSupply.div(new BN(2));
+		instance.burn(tokensBurnt.toNumber());
+		let supplyAfterBurn = await instance.totalSupply();
+		instance.transfer(recipient,sentTokens);
+		let finalSupply = await instance.totalSupply();
+		expect(supplyAfterBurn).to.be.a.bignumber.equal(initialSupply.sub(tokensBurnt));
+		expect(instance.balanceOf(recipient)).to.be.eventually.a.bignumber.equal(new BN(sentTokens));
+		return expect(finalSupply).to.be.a.bignumber.equal(supplyAfterBurn);
+		
+	})
 	it('Should not allow transfers greater than the amount held in initialHolder account', async () => {
 		let instance = this.myToken;
 		let balanceofAccount = await instance.balanceOf(initialHolder);
