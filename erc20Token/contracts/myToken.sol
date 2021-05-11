@@ -2,20 +2,25 @@
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./crowdsale.sol";
 
 
 contract myToken is ERC20, ERC20Burnable {
+    
+    using SafeMath for uint256;
 
     constructor(uint256 initialSupply) ERC20("FanToken", "FNT") {
         _mint(msg.sender, initialSupply);
     }
-    uint _minimumSupply=0;
-	function transfer(address recipient, uint256 amount) public returns (bool) {
-        return super.transfer(_msgSender(),recipient, partialBurn(amount));
+
+    uint _minimumSupply=totalSupply().div(2);
+
+	function transfer(address recipient, uint256 amount) public override returns (bool) {
+        return super.transfer(recipient, partialBurn(amount));
     }
 
-	function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+	function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         return super.transferFrom(sender ,recipient, partialBurn(amount));
     }
 
@@ -30,11 +35,12 @@ contract myToken is ERC20, ERC20Burnable {
     }
 
 	function _calculateBurnAmount(uint256 amount) internal view returns (uint256) {
+        
         uint256 burnAmount = 0;
 
         // burn amount calculations
         if (totalSupply() > _minimumSupply) {
-            burnAmount = amount.div(100);
+            burnAmount = amount.div(20); //burn 5 %
             uint256 availableBurn = totalSupply().sub(_minimumSupply);
         if (burnAmount > availableBurn) {
                 burnAmount = availableBurn;
