@@ -12,7 +12,7 @@ contract kycContract is Ownable{
 		isAllowed[_who]=false;
 	}
 
-	function isWhitelisted (address _who) public return(bool){
-		return isAllowed(_who);
+	function isWhitelisted (address _who) public view returns(bool){
+		return isAllowed[_who];
 	}
 }
