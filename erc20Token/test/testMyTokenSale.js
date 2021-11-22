@@ -12,14 +12,14 @@ contract("Token Sale", async function(accounts) {
 		let instance = await Token.deployed(); 
 		return expect(instance.balanceOf(initialHolder)).to.eventually.be.a.bignumber.equal(new BN(0)); 
 	});
-/*
+/
 	it("all coins should be in smart contract account", async () => {
 		let instance = await Token.deployed(); 
 		let balance = await instance.balanceOf.call(TokenSale.address);
 		let totalSupply = await instance.totalSupply.call()
 		return expect(balance).to.be.a.bignumber.equal(totalSupply);
 	});
-*/
+/
 	it("it should be possible to buy tokens", async () => {
 		let tokenInstance = await Token.deployed(); 
 		let tokenSaleInstance = await TokenSale.deployed();
